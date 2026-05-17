@@ -1,0 +1,167 @@
+
+<h2 class="sr-only">Quiz de modos gregos: identifique o modo a partir do caráter sonoro descrito.</h2>
+
+<style>
+* { box-sizing: border-box; }
+.wrap { padding: 1rem 0; }
+.status { display: flex; gap: 16px; margin-bottom: 1.5rem; font-size: 13px; color: var(--color-text-secondary); }
+.stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.stat-num { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.pergunta-box { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
+.grau-hint { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 6px; }
+.carater-txt { font-size: 18px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; margin-bottom: 4px; }
+.detalhe-txt { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+.imagem-txt { font-size: 13px; color: var(--color-text-secondary); }
+.opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.op { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; font-size: 15px; font-weight: 500; color: var(--color-text-primary); cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; }
+.op:hover:not(:disabled) { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
+.op.certa { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+.op.errada { background: var(--color-background-danger); border-color: var(--color-border-danger); color: var(--color-text-danger); }
+.op.revelar { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); opacity: 0.6; }
+.feedback { font-size: 13px; min-height: 20px; margin-bottom: 1rem; color: var(--color-text-secondary); }
+.feedback.ok { color: var(--color-text-success); }
+.feedback.err { color: var(--color-text-danger); }
+.actions { display: flex; gap: 8px; }
+.resultado { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem; text-align: center; }
+.resultado h3 { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+.resultado p { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+</style>
+
+<div class="wrap">
+  <div class="status">
+    <div class="stat"><span class="stat-num" id="atual">1</span><span>questão</span></div>
+    <div class="stat"><span class="stat-num" id="certas">0</span><span>certas</span></div>
+    <div class="stat"><span class="stat-num" id="erradas">0</span><span>erradas</span></div>
+    <div class="stat"><span class="stat-num" id="total">7</span><span>total</span></div>
+  </div>
+
+  <div id="quiz-area">
+    <div class="pergunta-box">
+      <div class="grau-hint" id="grau-hint"></div>
+      <div class="carater-txt" id="carater-txt"></div>
+      <div class="detalhe-txt" id="detalhe-txt"></div>
+      <div class="imagem-txt" id="imagem-txt"></div>
+    </div>
+    <div class="opcoes" id="opcoes"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button id="btn-prox" onclick="proxima()" style="display:none">próxima →</button>
+      <button onclick="reiniciar()">reiniciar ↺</button>
+    </div>
+  </div>
+
+  <div id="resultado-area" style="display:none" class="resultado">
+    <h3 id="res-titulo"></h3>
+    <p id="res-desc"></p>
+    <button onclick="reiniciar()">jogar novamente ↺</button>
+  </div>
+</div>
+
+<script>
+const modos = [
+  { grau: "I", nome: "Jônico", carater: "Estável e luminoso — \"em casa\"", detalhe: "escala maior pura", imagem: "O sol do meio-dia. Sem tensão, sem sombra." },
+  { grau: "II", nome: "Dórico", carater: "Menor, mas com esperança", detalhe: "menor com 6ª maior", imagem: "Noite estrelada: escuro, mas não deprimente." },
+  { grau: "III", nome: "Frígio", carater: "Escuro, tenso, exótico", detalhe: "menor com 2ª menor", imagem: "Deserto à noite. Tensão e mistério." },
+  { grau: "IV", nome: "Lídio", carater: "Brilhante e flutuante", detalhe: "maior com 4ª aumentada", imagem: "Flutuar sobre nuvens. Leve e irreal." },
+  { grau: "V", nome: "Mixolídio", carater: "Maior com tensão", detalhe: "maior com 7ª menor", imagem: "Motor ligado, pronto pra andar." },
+  { grau: "VI", nome: "Eólio", carater: "Sombrio e melancólico", detalhe: "escala menor natural", imagem: "Chuva numa tarde cinza. Tristeza tranquila." },
+  { grau: "VII", nome: "Lócrio", carater: "Instável, desequilibrado", detalhe: "menor com 5ª diminuta", imagem: "Chão cedendo. Impossível se equilibrar." },
+];
+
+let ordem = [];
+let idx = 0;
+let certas = 0;
+let erradas = 0;
+let respondido = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function gerarOpcoes(correto) {
+  const outros = modos.filter(m => m.nome !== correto.nome);
+  const erradas3 = shuffle(outros).slice(0, 3);
+  return shuffle([correto, ...erradas3]);
+}
+
+function renderPergunta() {
+  respondido = false;
+  const m = ordem[idx];
+  document.getElementById('grau-hint').textContent = 'grau ' + m.grau;
+  document.getElementById('carater-txt').textContent = m.carater;
+  document.getElementById('detalhe-txt').textContent = m.detalhe;
+  document.getElementById('imagem-txt').textContent = m.imagem;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btn-prox').style.display = 'none';
+  document.getElementById('atual').textContent = idx + 1;
+
+  const opcoes = gerarOpcoes(m);
+  const div = document.getElementById('opcoes');
+  div.innerHTML = '';
+  opcoes.forEach(op => {
+    div.innerHTML += `<button class="op" onclick="responder('${op.nome}', '${m.nome}', this)">${op.nome}</button>`;
+  });
+}
+
+function responder(escolha, correta, btn) {
+  if (respondido) return;
+  respondido = true;
+
+  const bots = document.querySelectorAll('.op');
+  bots.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  if (escolha === correta) {
+    btn.classList.add('certa');
+    fb.textContent = '✓ certo';
+    fb.className = 'feedback ok';
+    certas++;
+    document.getElementById('certas').textContent = certas;
+  } else {
+    btn.classList.add('errada');
+    fb.textContent = '✗ errado — era ' + correta;
+    fb.className = 'feedback err';
+    erradas++;
+    document.getElementById('erradas').textContent = erradas;
+    bots.forEach(b => { if (b.textContent === correta) b.classList.add('revelar'); });
+  }
+
+  if (idx + 1 < ordem.length) {
+    document.getElementById('btn-prox').style.display = 'inline-block';
+  } else {
+    setTimeout(mostrarResultado, 800);
+  }
+}
+
+function proxima() {
+  idx++;
+  renderPergunta();
+}
+
+function mostrarResultado() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('resultado-area').style.display = 'block';
+  const pct = Math.round((certas / ordem.length) * 100);
+  const titulo = pct === 100 ? '7/7 — perfeito!' : pct >= 70 ? certas + '/7 — bom!' : certas + '/7 — revisa os flip cards';
+  document.getElementById('res-titulo').textContent = titulo;
+  document.getElementById('res-desc').textContent = certas + ' certas, ' + erradas + ' erradas de ' + ordem.length + ' questões.';
+}
+
+function reiniciar() {
+  idx = 0; certas = 0; erradas = 0;
+  document.getElementById('certas').textContent = 0;
+  document.getElementById('erradas').textContent = 0;
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('resultado-area').style.display = 'none';
+  ordem = shuffle(modos);
+  renderPergunta();
+}
+
+reiniciar();
+</script>
