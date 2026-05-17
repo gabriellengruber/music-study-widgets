@@ -1,0 +1,163 @@
+
+<h2 class="sr-only">Material de memorização dos 7 modos gregos com caráter sonoro, imagem mental e referências musicais</h2>
+
+<style>
+.modo-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; display: grid; grid-template-columns: 48px 1fr 1fr; gap: 12px; align-items: start; cursor: pointer; transition: border-color 0.15s; }
+.modo-card:hover { border-color: var(--color-border-primary); }
+.modo-card.expanded { border-color: var(--color-border-secondary); }
+.grau { font-size: 22px; font-weight: 500; color: var(--color-text-secondary); padding-top: 2px; }
+.nome { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px; }
+.grau-label { font-size: 12px; color: var(--color-text-tertiary); }
+.carater { font-size: 14px; color: var(--color-text-secondary); }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); margin-top: 4px; }
+.badge-maior { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-menor { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-instavel { background: var(--color-background-danger); color: var(--color-text-danger); }
+.expandido { display: none; grid-column: 1 / -1; border-top: 0.5px solid var(--color-border-tertiary); margin-top: 8px; padding-top: 12px; }
+.modo-card.expanded .expandido { display: block; }
+.ref-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.ref-tag { font-size: 12px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 3px 10px; color: var(--color-text-secondary); }
+.imagem { font-size: 13px; color: var(--color-text-secondary); margin: 0; border-left: 2px solid var(--color-border-secondary); padding-left: 10px; border-radius: 0; }
+.dica { font-size: 12px; color: var(--color-text-tertiary); margin-top: 6px; }
+.filtros { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filtros button { font-size: 12px; }
+.filtros button.ativo { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+</style>
+
+<div style="padding: 1rem 0 0;">
+
+<div class="filtros">
+  <button onclick="filtrar('todos')" class="ativo" id="f-todos">todos</button>
+  <button onclick="filtrar('maior')" id="f-maior">maiores</button>
+  <button onclick="filtrar('menor')" id="f-menor">menores</button>
+</div>
+
+<div id="lista"></div>
+
+</div>
+
+<script>
+const modos = [
+  {
+    grau: "I",
+    nome: "Jônico",
+    tipo: "maior",
+    carater: "Estável, luminoso, \"em casa\"",
+    imagem: "O sol do meio-dia. Sem tensão, sem sombra.",
+    refs: ["qualquer música pop em maior", "Happy Birthday", "Let It Be — Beatles"],
+    dica: "É a escala maior que você já conhece. Ponto de partida de tudo."
+  },
+  {
+    grau: "II",
+    nome: "Dórico",
+    tipo: "menor",
+    carater: "Menor, mas com esperança — menos fechado",
+    imagem: "Noite estrelada: escuro, mas não deprimente.",
+    refs: ["Oye Como Va — Santana", "So What — Miles Davis", "Smoke on the Water — Deep Purple"],
+    dica: "Menor com a 6ª maior. Aquela nota 'a mais' ilumina o modo."
+  },
+  {
+    grau: "III",
+    nome: "Frígio",
+    tipo: "menor",
+    carater: "Escuro, tenso, exótico — flamenco, metal",
+    imagem: "Deserto à noite. Tensão e mistério.",
+    refs: ["Wherever I May Roam — Metallica", "White Zombie — Rob Zombie", "flamenco em geral"],
+    dica: "Começa com semitom (2ª menor). Esse intervalo dá o sabor característico."
+  },
+  {
+    grau: "IV",
+    nome: "Lídio",
+    tipo: "maior",
+    carater: "Maior brilhante, flutuante, onírico",
+    imagem: "Flutuar sobre nuvens. Leve e irreal.",
+    refs: ["trilhas da Pixar/John Williams", "Flying — Beatles", "Joe Satriani — Flying in a Blue Dream"],
+    dica: "Maior com a 4ª aumentada. Aquela nota levantada é o que faz ele 'voar'."
+  },
+  {
+    grau: "V",
+    nome: "Mixolídio",
+    tipo: "maior",
+    carater: "Maior com tensão — rock, blues, funk",
+    imagem: "Motor ligado, pronto pra andar. Energia sem repouso.",
+    refs: ["Sweet Home Chicago — blues", "Norwegian Wood — Beatles", "acordes de rock em geral (V7)"],
+    dica: "Maior com a 7ª menor. O acorde dominante (V7) natural vive aqui."
+  },
+  {
+    grau: "VI",
+    nome: "Eólio",
+    tipo: "menor",
+    carater: "Sombrio, melancólico, introspectivo",
+    imagem: "Chuva numa tarde cinza. Tristeza tranquila.",
+    refs: ["Nothing Else Matters — Metallica", "Stairway to Heaven — Led Zeppelin", "maioria das músicas em menor"],
+    dica: "É a escala menor natural. Você já conhecia esse modo."
+  },
+  {
+    grau: "VII",
+    nome: "Lócrio",
+    tipo: "instavel",
+    carater: "Muito instável, dissonante — raramente usado como centro",
+    imagem: "Chão cedendo. Impossível encontrar equilíbrio.",
+    refs: ["riffs de metal extremo", "raramente como modo principal"],
+    dica: "Tem a 5ª diminuta — o acorde base já é instável. Difícil de centrar."
+  }
+];
+
+function badgeClass(tipo) {
+  if (tipo === 'maior') return 'badge-maior';
+  if (tipo === 'menor') return 'badge-menor';
+  return 'badge-instavel';
+}
+function badgeLabel(tipo) {
+  if (tipo === 'maior') return 'caráter maior';
+  if (tipo === 'menor') return 'caráter menor';
+  return 'instável';
+}
+
+let filtroAtual = 'todos';
+
+function filtrar(f) {
+  filtroAtual = f;
+  document.querySelectorAll('.filtros button').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('f-' + f).classList.add('ativo');
+  render();
+}
+
+function toggle(i) {
+  const card = document.getElementById('card-' + i);
+  card.classList.toggle('expanded');
+}
+
+function render() {
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+  modos.forEach((m, i) => {
+    if (filtroAtual !== 'todos') {
+      if (filtroAtual === 'maior' && m.tipo !== 'maior') return;
+      if (filtroAtual === 'menor' && m.tipo !== 'menor' && m.tipo !== 'instavel') return;
+    }
+    lista.innerHTML += `
+      <div class="modo-card" id="card-${i}" onclick="toggle(${i})">
+        <div class="grau">${m.grau}</div>
+        <div>
+          <p class="nome">${m.nome}</p>
+          <span class="grau-label">grau ${m.grau} da escala maior</span>
+        </div>
+        <div>
+          <div class="carater">${m.carater}</div>
+          <span class="badge ${badgeClass(m.tipo)}">${badgeLabel(m.tipo)}</span>
+        </div>
+        <div class="expandido">
+          <p class="imagem">🖼 ${m.imagem}</p>
+          <div class="dica">${m.dica}</div>
+          <div class="ref-row">
+            ${m.refs.map(r => `<span class="ref-tag">${r}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+render();
+</script>
