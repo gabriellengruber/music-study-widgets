@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Círculo das Quintas — Neon Study</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#050711" />
+  <link rel="icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    :root {
+      --bg0: #050711;
+      --bg1: #090d1f;
+      --panel: rgba(11, 18, 42, 0.72);
+      --panel2: rgba(17, 27, 62, 0.72);
+      --line: rgba(117, 235, 255, 0.28);
+      --line2: rgba(255, 77, 219, 0.24);
+      --cyan: #66f6ff;
+      --blue: #6d8cff;
+      --violet: #a56cff;
+      --magenta: #ff4ddb;
+      --amber: #ffd166;
+      --green: #72ffb6;
+      --red: #ff6b8a;
+      --text: #eaf6ff;
+      --muted: #a8b3cf;
+      --darkText: #06101d;
+      --shadowCyan: 0 0 16px rgba(102, 246, 255, .55), 0 0 35px rgba(102, 246, 255, .22);
+      --shadowMagenta: 0 0 16px rgba(255, 77, 219, .45), 0 0 35px rgba(255, 77, 219, .18);
+      --radius: 18px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(109, 140, 255, .25), transparent 32%),
+        radial-gradient(circle at 86% 18%, rgba(255, 77, 219, .18), transparent 32%),
+        radial-gradient(circle at 50% 90%, rgba(102, 246, 255, .12), transparent 36%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 58%, #050510);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .28;
+      background-image:
+        linear-gradient(rgba(102, 246, 255, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(102, 246, 255, .08) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at center, black 0%, black 52%, transparent 86%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(rgba(255,255,255,.035) 50%, rgba(0,0,0,0) 50%);
+      background-size: 100% 4px;
+      opacity: .13;
+      mix-blend-mode: screen;
+    }
+
+    .app {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      min-width: 260px;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .18em;
+      font-size: 12px;
+      text-shadow: var(--shadowCyan);
+    }
+
+    h1 {
+      margin: 8px 0 8px;
+      font-size: clamp(30px, 4vw, 58px);
+      line-height: .95;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 780px;
+      line-height: 1.5;
+    }
+
+    .hud-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(102, 246, 255, .07);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      box-shadow: inset 0 0 14px rgba(102, 246, 255, .08);
+      white-space: nowrap;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(480px, 1fr) minmax(340px, 440px);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .panel {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel), rgba(4, 8, 22, .72));
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, .03) inset,
+        0 22px 80px rgba(0, 0, 0, .42),
+        0 0 36px rgba(102, 246, 255, .08);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background:
+        linear-gradient(135deg, rgba(102,246,255,.16), transparent 28%),
+        linear-gradient(315deg, rgba(255,77,219,.12), transparent 30%);
+      opacity: .8;
+    }
+
+    .panel-inner {
+      position: relative;
+      padding: 18px;
+      z-index: 1;
+    }
+
+    .circle-panel {
+      min-height: 690px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid rgba(102, 246, 255, .34);
+      color: var(--text);
+      background: rgba(6, 17, 38, .72);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(102, 246, 255, .8);
+      box-shadow: var(--shadowCyan);
+    }
+
+    button.active {
+      color: var(--darkText);
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border-color: transparent;
+      box-shadow: var(--shadowCyan);
+    }
+
+    button.quiz-on {
+      background: linear-gradient(135deg, var(--magenta), var(--violet));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: var(--shadowMagenta);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      margin: 4px 0 0;
+    }
+
+    .circle-wrap {
+      position: relative;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      min-height: 550px;
+      overflow: hidden;
+    }
+
+    .rings {
+      position: absolute;
+      width: min(92%, 720px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(102, 246, 255, .16);
+      box-shadow:
+        0 0 24px rgba(102, 246, 255, .09),
+        inset 0 0 80px rgba(102, 246, 255, .06);
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    .rings::before,
+    .rings::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      inset: 10%;
+      border: 1px dashed rgba(255, 77, 219, .24);
+    }
+
+    .rings::after {
+      inset: 28%;
+      border-style: solid;
+      border-color: rgba(255, 209, 102, .22);
+      box-shadow: inset 0 0 30px rgba(255, 209, 102, .07);
+    }
+
+    @keyframes breathe {
+      0%,100% { filter: drop-shadow(0 0 5px rgba(102, 246, 255, .28)); }
+      50% { filter: drop-shadow(0 0 18px rgba(255, 77, 219, .2)); }
+    }
+
+    svg#wheel {
+      position: relative;
+      width: min(92%, 720px);
+      height: auto;
+      overflow: visible;
+    }
+
+    .slice {
+      cursor: pointer;
+      transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+      transform-origin: 0 0;
+    }
+
+    .slice path {
+      fill: rgba(10, 22, 52, .72);
+      stroke: rgba(102, 246, 255, .32);
+      stroke-width: 1.4;
+      transition: fill .18s ease, stroke .18s ease, stroke-width .18s ease;
+    }
+
+    .slice:hover path {
+      fill: rgba(102, 246, 255, .18);
+      stroke: rgba(102, 246, 255, .9);
+      stroke-width: 2.2;
+      filter: drop-shadow(0 0 10px rgba(102, 246, 255, .55));
+    }
+
+    .slice.active path {
+      fill: rgba(102, 246, 255, .22);
+      stroke: var(--cyan);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 14px rgba(102, 246, 255, .8));
+    }
+
+    .slice.related-dominant path,
+    .slice.related-subdominant path {
+      fill: rgba(255, 77, 219, .14);
+      stroke: rgba(255, 77, 219, .74);
+      stroke-width: 2.4;
+      filter: drop-shadow(0 0 9px rgba(255, 77, 219, .48));
+    }
+
+    .slice.related-relative path {
+      fill: rgba(255, 209, 102, .12);
+      stroke: rgba(255, 209, 102, .75);
+      stroke-width: 2.2;
+      filter: drop-shadow(0 0 9px rgba(255, 209, 102, .42));
+    }
+
+    .key-label {
+      pointer-events: none;
+      user-select: none;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      fill: var(--text);
+      text-anchor: middle;
+      dominant-baseline: central;
+      text-shadow: 0 0 10px rgba(102, 246, 255, .58);
+    }
+
+    .minor-label {
+      fill: rgba(234, 246, 255, .72);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .03em;
+    }
+
+    .acc-label {
+      fill: rgba(102, 246, 255, .84);
+      font-weight: 800;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .center-core {
+      position: absolute;
+      width: min(34%, 235px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px solid rgba(102, 246, 255, .42);
+      background:
+        radial-gradient(circle, rgba(102, 246, 255, .14), transparent 58%),
+        rgba(5, 11, 27, .72);
+      box-shadow:
+        var(--shadowCyan),
+        inset 0 0 34px rgba(255, 77, 219, .08);
+      pointer-events: none;
+    }
+
+    .center-core .selected {
+      font-size: clamp(34px, 6vw, 66px);
+      line-height: .85;
+      font-weight: 950;
+      letter-spacing: -.08em;
+    }
+
+    .center-core .selected-mode {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 800;
+    }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(102, 246, 255, .17);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .title-row h2 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .tag {
+      padding: 6px 9px;
+      border: 1px solid rgba(255, 77, 219, .38);
+      border-radius: 999px;
+      color: var(--magenta);
+      background: rgba(255, 77, 219, .08);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: .12em;
+      white-space: nowrap;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      border: 1px solid rgba(102, 246, 255, .18);
+      border-radius: 14px;
+      background: rgba(6, 12, 32, .55);
+      padding: 12px;
+      min-height: 78px;
+      box-shadow: inset 0 0 18px rgba(102, 246, 255, .04);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .value.small {
+      font-size: 15px;
+      line-height: 1.35;
+      color: #dbe9ff;
+      font-weight: 750;
+    }
+
+    .scale-row,
+    .chord-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .note-pill,
+    .chord-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      padding: 8px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(102, 246, 255, .26);
+      background: rgba(102, 246, 255, .07);
+      font-weight: 850;
+      box-shadow: 0 0 14px rgba(102, 246, 255, .05);
+    }
+
+    .chord-pill {
+      border-color: rgba(255, 77, 219, .28);
+      background: rgba(255, 77, 219, .07);
+    }
+
+    .section-title {
+      margin: 4px 0 10px;
+      font-size: 13px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 950;
+      text-shadow: var(--shadowCyan);
+    }
+
+    .study-block {
+      margin-top: 14px;
+    }
+
+    .relationship-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 9px;
+    }
+
+    .rel {
+      border: 1px solid rgba(255, 209, 102, .2);
+      background: rgba(255, 209, 102, .06);
+      border-radius: 13px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .rel strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 18px;
+    }
+
+    .quiz-box {
+      display: none;
+    }
+
+    .quiz-box.active {
+      display: block;
+    }
+
+    .quiz-question { 
+      border: 1px solid rgba(255, 77, 219, .28);
+      background: rgba(255, 77, 219, .07);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .quiz-question strong {
+      display: block;
+      font-size: 17px;
+      margin-top: 4px;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 10px;
+      color: var(--green);
+      font-weight: 850;
+    }
+
+    .answer.visible {
+      display: block;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      border-top: 1px solid rgba(102, 246, 255, .14);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .dot.cyan { color: var(--cyan); background: var(--cyan); }
+    .dot.magenta { color: var(--magenta); background: var(--magenta); }
+    .dot.amber { color: var(--amber); background: var(--amber); }
+
+    .hidden-quiz {
+      filter: blur(7px);
+      opacity: .45;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @media (max-width: 1040px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .app {
+        width: min(100vw - 18px, 680px);
+        padding-top: 14px;
+      }
+
+      header {
+        flex-direction: column;
+      }
+
+      .hud-status {
+        justify-content: flex-start;
+      }
+
+      .circle-panel {
+        min-height: 540px;
+      }
+
+      .circle-wrap {
+        min-height: 430px;
+      }
+
+      .side {
+        display: flex;
+      }
+
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .relationship-map {
+        grid-template-columns: 1fr;
+      }
+
+      .center-core {
+        width: 30%;
+      }
+
+      .center-core .selected {
+        font-size: 30px;
+      }
+    }
+    @media (max-width: 540px) {
+      .app {
+        width: 100vw;
+        padding: 10px 0 24px;
+      }
+
+      .app > header {
+        padding: 0 12px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .hud-status {
+        justify-content: flex-start;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      main.main-grid {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+        gap: 12px;
+      }
+
+      .side {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .panel-inner {
+        padding: 12px;
+      }
+
+      .circle-panel {
+        min-height: 460px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .group {
+        justify-content: center;
+      }
+
+      button {
+        min-height: 44px;
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+
+      .circle-wrap {
+        min-height: 360px;
+      }
+
+      .rings {
+        width: 96%;
+      }
+
+      svg#wheel {
+        width: 96%;
+      }
+
+      .key-label.major-label {
+        font-size: 22px;
+      }
+
+      .key-label.minor-label {
+        font-size: 11px;
+      }
+
+      .key-label.acc-label {
+        font-size: 7px;
+      }
+
+      .center-core {
+        width: 38%;
+      }
+
+      .center-core .selected {
+        font-size: 28px;
+      }
+
+      .center-core .selected-mode {
+        font-size: 10px;
+      }
+
+      .data-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .card {
+        min-height: 44px;
+        padding: 10px;
+      }
+
+      .relationship-map {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .rel {
+        padding: 8px;
+        min-height: 44px;
+      }
+
+      .note-pill,
+      .chord-pill {
+        min-height: 38px;
+        min-width: 42px;
+        font-size: 13px;
+      }
+
+      .title-row h2 {
+        font-size: 22px;
+      }
+
+      .quiz-question {
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="eyebrow">Neon Music Study Interface</div>
+        <h1>Círculo das Quintas</h1>
+        <p class="subtitle">
+          Ferramenta interativa para visualizar relações tonais, escalas, acordes diatônicos,
+          relativos, dominante e subdominante. Clique em uma tonalidade para estudar.
+        </p>
+      </div>
+      <div class="hud-status">
+        <div class="chip">Futuristic UI</div>
+        <div class="chip">Neon Study</div>
+        <div class="chip">HTML único</div>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="panel circle-panel">
+        <div class="panel-inner">
+          <div class="toolbar">
+            <div class="group">
+              <button id="majorBtn" class="active">Modo maior</button>
+              <button id="minorBtn">Modo menor</button>
+            </div>
+            <div class="group">
+              <button id="studyBtn" class="active">Estudo</button>
+              <button id="quizBtn">Quiz</button>
+              <button id="revealBtn">Revelar</button>
+            </div>
+          </div>
+          <p class="hint">
+            Ciano = tonalidade selecionada. Magenta = dominante/subdominante. Âmbar = relativo.
+          </p>
+
+          <div class="circle-wrap">
+            <div class="rings"></div>
+            <svg id="wheel" viewBox="-400 -400 800 800" aria-label="Círculo das Quintas"></svg>
+            <div class="center-core">
+              <div>
+                <div class="selected" id="centerKey">C</div>
+                <div class="selected-mode" id="centerMode">maior</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span><i class="dot cyan"></i>Selecionada</span>
+            <span><i class="dot magenta"></i>Dominante/Subdominante</span>
+            <span><i class="dot amber"></i>Relativo maior/menor</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-inner">
+            <div class="title-row">
+              <div>
+                <h2 id="infoTitle">C maior</h2>
+                <p class="hint" id="infoSubtitle">Referência central: sem acidentes.</p>
+              </div>
+              <div class="tag" id="modeTag">Estudo</div>
+            </div>
+
+            <div class="data-grid">
+              <div class="card">
+                <div class="label">Armadura</div>
+                <div class="value" id="signature">0 acidentes</div>
+              </div>
+              <div class="card">
+                <div class="label">Relativo</div>
+                <div class="value" id="relative">A menor</div>
+              </div>
+              <div class="card">
+                <div class="label">Dominante</div>
+                <div class="value" id="dominant">G</div>
+              </div>
+              <div class="card">
+                <div class="label">Subdominante</div>
+                <div class="value" id="subdominant">F</div>
+              </div>
+            </div>
+
+            <div class="study-block" id="studyData">
+              <div class="section-title">Notas da escala</div>
+              <div class="scale-row" id="scaleNotes"></div>
+
+              <div class="section-title" style="margin-top:16px;">Acordes diatônicos</div>
+              <div class="chord-row" id="diatonicChords"></div>
+
+              <div class="section-title" style="margin-top:16px;">Mapa funcional</div>
+              <div class="relationship-map">
+                <div class="rel">
+                  <span class="label">IV</span>
+                  <strong id="relSub">F</strong>
+                </div>
+                <div class="rel">
+                  <span class="label">I</span>
+                  <strong id="relTon">C</strong>
+                </div>
+                <div class="rel">
+                  <span class="label">V</span>
+                  <strong id="relDom">G</strong>
+                </div>
+            </div>
+          </div>
+
+            <div class="quiz-box" id="quizBox">
+              <div class="quiz-question">
+                <span class="label">Pergunta 1</span>
+                <strong id="q1">Qual é a dominante de C maior?</strong>
+                <div class="answer" id="a1">G</div>
+              </div>
+              <div class="quiz-question">
+                <span class="label">Pergunta 2</span>
+                <strong id="q2">Qual é o relativo menor de C maior?</strong>
+                <div class="answer" id="a2">A menor</div>
+              </div>
+              <div class="quiz-question">
+                <span class="label">Pergunta 3</span>
+                <strong id="q3">Quais são os acordes diatônicos?</strong>
+                <div class="answer" id="a3">C, Dm, Em, F, G, Am, Bdim</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-inner">
+            <div class="section-title">Como estudar</div>
+            <div class="card">
+              <div class="value small">
+                1. Escolha uma tonalidade.<br>
+                2. Memorize IV–I–V no mapa funcional.<br>
+                3. Leia a escala em voz alta.<br>
+                4. Toque os acordes diatônicos na guitarra/teclado.<br>
+                5. Ative o quiz e tente responder sem olhar.
+              </div>
+            </div>
+            <p class="footer-note">
+              Versão inicial. Para evoluir: adicionar som, campo harmônico com graus romanos,
+              treino por intervalos, braço da guitarra, progressões I–V–vi–IV e exercícios por tempo.
+            </p>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const keys = [
+      { major: "C", minor: "Am", sig: "0 acidentes", notesM: ["C","D","E","F","G","A","B"], chordsM: ["C","Dm","Em","F","G","Am","Bdim"], notesm: ["A","B","C","D","E","F","G"], chordsm: ["Am","Bdim","C","Dm","Em","F","G"] },
+      { major: "G", minor: "Em", sig: "1 sustenido: F♯", notesM: ["G","A","B","C","D","E","F♯"], chordsM: ["G","Am","Bm","C","D","Em","F♯dim"], notesm: ["E","F♯","G","A","B","C","D"], chordsm: ["Em","F♯dim","G","Am","Bm","C","D"] },
+      { major: "D", minor: "Bm", sig: "2 sustenidos: F♯ C♯", notesM: ["D","E","F♯","G","A","B","C♯"], chordsM: ["D","Em","F♯m","G","A","Bm","C♯dim"], notesm: ["B","C♯","D","E","F♯","G","A"], chordsm: ["Bm","C♯dim","D","Em","F♯m","G","A"] },
+      { major: "A", minor: "F♯m", sig: "3 sustenidos: F♯ C♯ G♯", notesM: ["A","B","C♯","D","E","F♯","G♯"], chordsM: ["A","Bm","C♯m","D","E","F♯m","G♯dim"], notesm: ["F♯","G♯","A","B","C♯","D","E"], chordsm: ["F♯m","G♯dim","A","Bm","C♯m","D","E"] },
+      { major: "E", minor: "C♯m", sig: "4 sustenidos: F♯ C♯ G♯ D♯", notesM: ["E","F♯","G♯","A","B","C♯","D♯"], chordsM: ["E","F♯m","G♯m","A","B","C♯m","D♯dim"], notesm: ["C♯","D♯","E","F♯","G♯","A","B"], chordsm: ["C♯m","D♯dim","E","F♯m","G♯m","A","B"] },
+      { major: "B", minor: "G♯m", sig: "5 sustenidos: F♯ C♯ G♯ D♯ A♯", notesM: ["B","C♯","D♯","E","F♯","G♯","A♯"], chordsM: ["B","C♯m","D♯m","E","F♯","G♯m","A♯dim"], notesm: ["G♯","A♯","B","C♯","D♯","E","F♯"], chordsm: ["G♯m","A♯dim","B","C♯m","D♯m","E","F♯"] },
+      { major: "F♯", minor: "D♯m", sig: "6 sustenidos: F♯ C♯ G♯ D♯ A♯ E♯", notesM: ["F♯","G♯","A♯","B","C♯","D♯","E♯"], chordsM: ["F♯","G♯m","A♯m","B","C♯","D♯m","E♯dim"], notesm: ["D♯","E♯","F♯","G♯","A♯","B","C♯"], chordsm: ["D♯m","E♯dim","F♯","G♯m","A♯m","B","C♯"] },
+      { major: "D♭", minor: "B♭m", sig: "5 bemóis: B♭ E♭ A♭ D♭ G♭", notesM: ["D♭","E♭","F","G♭","A♭","B♭","C"], chordsM: ["D♭","E♭m","Fm","G♭","A♭","B♭m","Cdim"], notesm: ["B♭","C","D♭","E♭","F","G♭","A♭"], chordsm: ["B♭m","Cdim","D♭","E♭m","Fm","G♭","A♭"] },
+      { major: "A♭", minor: "Fm", sig: "4 bemóis: B♭ E♭ A♭ D♭", notesM: ["A♭","B♭","C","D♭","E♭","F","G"], chordsM: ["A♭","B♭m","Cm","D♭","E♭","Fm","Gdim"], notesm: ["F","G","A♭","B♭","C","D♭","E♭"], chordsm: ["Fm","Gdim","A♭","B♭m","Cm","D♭","E♭"] },
+      { major: "E♭", minor: "Cm", sig: "3 bemóis: B♭ E♭ A♭", notesM: ["E♭","F","G","A♭","B♭","C","D"], chordsM: ["E♭","Fm","Gm","A♭","B♭","Cm","Ddim"], notesm: ["C","D","E♭","F","G","A♭","B♭"], chordsm: ["Cm","Ddim","E♭","Fm","Gm","A♭","B♭"] },
+      { major: "B♭", minor: "Gm", sig: "2 bemóis: B♭ E♭", notesM: ["B♭","C","D","E♭","F","G","A"], chordsM: ["B♭","Cm","Dm","E♭","F","Gm","Adim"], notesm: ["G","A","B♭","C","D","E♭","F"], chordsm: ["Gm","Adim","B♭","Cm","Dm","E♭","F"] },
+      { major: "F", minor: "Dm", sig: "1 bemol: B♭", notesM: ["F","G","A","B♭","C","D","E"], chordsM: ["F","Gm","Am","B♭","C","Dm","Edim"], notesm: ["D","E","F","G","A","B♭","C"], chordsm: ["Dm","Edim","F","Gm","Am","B♭","C"] }
+    ];
+
+    const svg = document.getElementById("wheel");
+    const state = {
+      index: 0,
+      mode: "major",
+      quiz: false,
+      reveal: false
+    };
+
+    const el = id => document.getElementById(id);
+
+    function polar(radius, angleDeg) {
+      const angle = (angleDeg - 90) * Math.PI / 180;
+      return [radius * Math.cos(angle), radius * Math.sin(angle)];
+    }
+
+    function wedgePath(rOuter, rInner, a0, a1) {
+      const [x1, y1] = polar(rOuter, a0);
+      const [x2, y2] = polar(rOuter, a1);
+      const [x3, y3] = polar(rInner, a1);
+      const [x4, y4] = polar(rInner, a0);
+      const largeArc = (a1 - a0) > 180 ? 1 : 0;
+      return `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    }
+
+    function makeText(x, y, text, cls, size) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x);
+      t.setAttribute("y", y);
+      t.setAttribute("class", cls);
+      t.setAttribute("font-size", size);
+      t.textContent = text;
+      return t;
+    }
+
+    function drawWheel() {
+      svg.innerHTML = "";
+      const rOuter = 350;
+      const rInner = 118;
+      const step = 360 / 12;
+
+      keys.forEach((k, i) => {
+        const start = i * step - step / 2;
+        const end = i * step + step / 2;
+        const mid = i * step;
+
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "slice");
+        g.dataset.index = i;
+        g.addEventListener("click", () => {
+          state.index = i;
+          state.reveal = false;
+          update();
+        });
+
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("d", wedgePath(rOuter, rInner, start, end));
+        g.appendChild(p);
+
+        const [mx, my] = polar(260, mid);
+        const [nx, ny] = polar(208, mid);
+        const [ax, ay] = polar(318, mid);
+
+        g.appendChild(makeText(mx, my - 6, k.major, "key-label major-label", 30));
+        g.appendChild(makeText(nx, ny + 16, k.minor, "key-label minor-label", 14));
+        g.appendChild(makeText(ax, ay, k.sig.replace(": ", " "), "key-label acc-label", 9));
+
+        svg.appendChild(g);
+      });
+    }
+
+    function tonicName(k) {
+      return state.mode === "major" ? k.major : k.minor;
+    }
+
+    function modeName() {
+      return state.mode === "major" ? "maior" : "menor natural";
+    }
+
+    function selectedData() {
+      const k = keys[state.index];
+      if (state.mode === "major") {
+        const dom = keys[(state.index + 1) % 12].major;
+        const sub = keys[(state.index + 11) % 12].major;
+        return {
+          tonic: k.major,
+          fullName: `${k.major} maior`,
+          relative: `${k.minor} menor`,
+          dominant: dom,
+          subdominant: sub,
+          sig: k.sig,
+          notes: k.notesM,
+          chords: k.chordsM,
+          relativeIndex: state.index
+        };
+      }
+
+      const dom = keys[(state.index + 1) % 12].minor;
+      const sub = keys[(state.index + 11) % 12].minor;
+      return {
+        tonic: k.minor,
+        fullName: `${k.minor} menor`,
+        relative: `${k.major} maior`,
+        dominant: dom,
+        subdominant: sub,
+        sig: k.sig,
+        notes: k.notesm,
+        chords: k.chordsm,
+        relativeIndex: state.index
+      };
+    }
+
+    function setPills(container, list, cls) {
+      container.innerHTML = "";
+      list.forEach(item => {
+        const span = document.createElement("span");
+        span.className = cls;
+        span.textContent = item;
+        container.appendChild(span);
+      });
+    }
+
+    function updateClasses() {
+      const domIndex = (state.index + 1) % 12;
+      const sull_index = (state.index + 11) % 12;
+
+      document.querySelectorAll(".slice").forEach(slice => {
+        const i = Number(slice.dataset.index);
+        slice.classList.toggle("active", i === state.index);
+        slice.classList.toggle("related-dominant", i === domIndex);
+        slice.classList.toggle("related-subdominant", i === sull_index);
+        slice.classList.toggle("related-relative", false);
+      });
+    }
+
+    function update() {
+      const data = selectedData();
+
+      el("centerKey").textContent = data.tonic;
+      el("centerMode").textContent = modeName();
+      el("infoTitle").textContent = data.fullName;
+      el("infoSubtitle").textContent = state.mode === "major"
+        ? "Tonalidade maior e seu campo harmônico básico."
+        : "Tonalidade menor natural relativa e seu campo harmônico básico.";
+      el("signature").textContent = data.sig;
+      el("relative").textContent = data.relative;
+      el("dominant").textContent = data.dominant;
+      el("subdominant").textContent = data.subdominant;
+
+      el("relSub").textContent = data.subdominant;
+      el("relTon").textContent = data.tonic;
+      el("relDom").textContent = data.dominant;
+
+      setPills(el("scaleNotes"), data.notes, "note-pill");
+      setPills(el("diatonicChords"), data.chords, "chord-pill");
+
+      el("q1").textContent = `Qual é a dominante de ${data.fullName}?`;
+      el("a1").textContent = data.dominant;
+      el("q2").textContent = `Qual é o relativo de ${data.fullName}?`;
+      el("a2").textContent = data.relative;
+      el("q3").textContent = `Quais são os acordes diatônicos de ${data.fullName}?`;
+      el("a3").textContent = data.chords.join(", ");
+
+      document.querySelectorAll(".answer").forEach(a => {
+        a.classList.toggle("visible", state.reveal);
+      });
+
+      el("majorBtn").classList.toggle("active", state.mode === "major");
+      el("minorBtn").classList.toggle("active", state.mode === "minor");
+      el("studyBtn").classList.toggle("active", !state.quiz);
+      el("quizBtn").classList.toggle("quiz-on", state.quiz);
+      el("modeTag").textContent = state.quiz ? "Quiz" : "Estudo";
+
+      el("studyData").style.display = state.quiz ? "none" : "block";
+      el("quizBox").classList.toggle("active", state.quiz);
+
+      updateClasses();
+    }
+
+    el("majorBtn").addEventListener("click", () => {
+      state.mode = "major";
+      state.reveal = false;
+      update();
+    });
+
+    el("minorBtn").addEventListener("click", () => {
+      state.mode = "minor";
+      state.reveal = false;
+      update();
+    });
+
+    el("studyBtn").addEventListener("click", () => {
+      state.quiz = false;
+      state.reveal = false;
+      update();
+    });
+
+    el("quizBtn").addEventListener("click", () => {
+      state.quiz = true;
+      state.reveal = false;
+      update();
+    });
+
+    el("revealBtn").addEventListener("click", () => {
+      state.reveal = !state.reveal;
+      update();
+    });
+
+    drawWheel();
+    update();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch((err) => {
+          console.warn("SW registration failed:", err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

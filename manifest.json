@@ -1,0 +1,25 @@
+{
+  "name": "Campo Harmônico - Neon Study",
+  "short_name": "Campo Harmônico",
+  "description": "Ferramenta interativa de círculo das quintas e campo harmônico",
+  "start_url": "./20260603_0115_001_circulo-das-quintas-neon-study.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050711",
+  "theme_color": "#050711",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
